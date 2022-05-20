@@ -1,0 +1,15 @@
+BLAU-A :0, BLAU-B :12, 
+1==0, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == not active
+===================================
+GELB-A :63, GELB-B :46, 
+1==0, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == not active
+===================================
+GRUEN-A :4, GRUEN-B :0, 
+1==0, 2==2, 3==0, 4==0, 5==0, 6==0
+labyrinth status == not active
+===================================
+rounde nummer 1
+Gewinner = null
+class de.ostfalia.prog.ss22.Paradiesspiel

@@ -1,0 +1,433 @@
+package application;
+
+import de.ostfalia.prog.ss22.Paradiesspiel;
+import de.ostfalia.prog.ss22.Spieler;
+import de.ostfalia.prog.ss22.enums.Farbe;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Random;
+import java.util.ResourceBundle;
+
+public class MainWindowController implements Initializable {
+    private final float[][] map = new float[64][2];
+    private final float[] dx = new float[]{0, 30, 0, 30, 0, 30};
+    private final float[] dy = new float[]{0, 0, 38, 38, 19, 19};
+    private final int[] wurfel = new int[2];
+    private final String[] styles = new String[]{"-fx-background-color: #3742fa;",
+            "-fx-background-color: #ffa502;",
+            "-fx-background-color: #2ed573;",
+            "-fx-background-color: #ff4757;",
+            "-fx-background-color: #2f3542;-fx-text-fill: #ffffff;",
+            "-fx-background-color: #7f8c8d;",
+    };
+    @FXML
+    ImageView blauA, blauB, gelbA, gelbB, gruenA, gruenB, rotA, rotB, schwarzA, schwarzB, weissA, weissB;
+    private Paradiesspiel p = null;
+    private int n;
+    private boolean configCBS = false;
+    private boolean LoadCBS = false;
+    @FXML
+    private Button action;
+    private Farbe[] farben;
+    @FXML
+    private GridPane scoreboard;
+    private ImageView[] figuren;
+    @FXML
+    private ImageView dice;
+    @FXML
+    private ImageView active;
+    @FXML
+    private ImageView dice1;
+    @FXML
+    private ImageView dice2;
+    @FXML
+    private Label blueALabel, blueBLabel, yellowALabel,
+            yellowBLabel, greenALabel, greenBLabel, redALabel, redBLabel, blackALabel,
+            blackBLabel, whiteALabel, whiteBLabel;
+    private Label[] labels;
+    @FXML
+    private Button selectFile;
+    @FXML
+    private Button startGame;
+    @FXML
+    private Button saveGame;
+    @FXML
+    private ComboBox mbox;
+    @FXML
+    private CheckBox configCBox;
+    @FXML
+    private CheckBox lgCBox;
+    @FXML
+    private Label nop;
+    @FXML
+    private TextField in;
+    @FXML
+    private Label rounde;
+
+    @FXML
+    void roll(ActionEvent event) {
+        action.setDisable(true);
+        boolean gewinner = false;
+        Farbe farbe = Farbe.BLAU;
+        for (Spieler s : p.getSpieler()) {
+            if (p.getFigurposition(s.getFarbe().toString() + "-A") == p.getFigurposition(s.getFarbe().toString() + "-B") &&
+                    p.getFigurposition(s.getFarbe().toString() + "-A") == 63
+            ) {
+                gewinner = true;
+                farbe = s.getFarbe();
+                break;
+            }
+        }
+        if (!gewinner) {
+            Thread thread = new Thread() {
+                public void run() {
+                    Random random = new Random();
+                    try {
+                        File file = new File("src/application/dice.gif");
+                        dice.setImage(new Image(file.toURI().toString()));
+                        Thread.sleep(1000);
+                        final int next = random.nextInt(n);
+                        p.setFarbeAmZug(Farbe.values()[next]);//next
+                        file = new File("src/application/dice/" + (next + 1) + ".png");
+                        dice.setImage(new Image(file.toURI().toString()));
+                        file = new File("src/application/figuren/" + Farbe.values()[next] + ".png");
+                        active.setImage(new Image(file.toURI().toString()));
+                        file = new File("src/application/dice.gif");
+                        labels[next * 2].setStyle(styles[next]);
+                        labels[next * 2 + 1].setStyle(styles[next]);
+                        dice1.setImage(new Image(file.toURI().toString()));
+                        dice2.setImage(new Image(file.toURI().toString()));
+                        Thread.sleep(1000);
+                        wurfel[0] = random.nextInt(6) + 1;
+                        wurfel[1] = random.nextInt(6) + 1;
+                        file = new File("src/application/dice/" + (wurfel[0]) + ".png");
+                        dice1.setImage(new Image(file.toURI().toString()));
+                        file = new File("src/application/dice/" + (wurfel[1]) + ".png");
+                        dice2.setImage(new Image(file.toURI().toString()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            thread.start();
+        } else {
+            nop.setVisible(true);
+            mbox.setVisible(true);
+            configCBox.setVisible(true);
+            lgCBox.setVisible(true);
+            in.setVisible(true);
+            selectFile.setVisible(true);
+            startGame.setVisible(true);
+            scoreboard.setVisible(false);
+            dice1.setVisible(false);
+            dice2.setVisible(false);
+            dice.setVisible(false);
+            action.setVisible(false);
+            dice2.setVisible(false);
+            active.setVisible(false);
+            rounde.setVisible(false);
+            saveGame.setVisible(false);
+            action.setDisable(false);
+            VBox vBox = new VBox();
+            ImageView imageView = new ImageView();
+            File file = new File("src/application/figuren/" + farbe + ".png");
+            imageView.setImage(new Image(file.toURI().toString()));
+            vBox.getChildren().add(imageView);
+            Label label = new Label("der Gewinner ist " + farbe);
+            label.setStyle(styles[farbe.ordinal()] + "-fx-font-size: 20;");
+            vBox.getChildren().add(label);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "der Gewinner ist " + farbe, ButtonType.OK);
+            alert.getDialogPane().setContent(vBox);
+            alert.show();
+            p = null;
+            n = 0;
+        }
+    }
+
+    @FXML
+    public void blueA(MouseEvent mouseEvent) {
+        move(Farbe.BLAU, "A");
+    }
+
+    @FXML
+    public void blueB(MouseEvent mouseEvent) {
+        move(Farbe.BLAU, "B");
+    }
+
+    @FXML
+    public void yellowA(MouseEvent mouseEvent) {
+        move(Farbe.GELB, "A");
+    }
+
+    @FXML
+    public void yellowB(MouseEvent mouseEvent) {
+        move(Farbe.GELB, "B");
+    }
+
+    @FXML
+    public void greenA(MouseEvent mouseEvent) {
+        move(Farbe.GRUEN, "A");
+    }
+
+    @FXML
+    public void greenB(MouseEvent mouseEvent) {
+        move(Farbe.GRUEN, "B");
+    }
+
+    @FXML
+    public void redA(MouseEvent mouseEvent) {
+        move(Farbe.ROT, "A");
+    }
+
+    @FXML
+    public void redB(MouseEvent mouseEvent) {
+        move(Farbe.ROT, "B");
+    }
+
+    @FXML
+    public void blackA(MouseEvent mouseEvent) {
+        move(Farbe.SCHWARZ, "A");
+    }
+
+    @FXML
+    public void blackB(MouseEvent mouseEvent) {
+        move(Farbe.SCHWARZ, "B");
+    }
+
+    @FXML
+    public void whiteA(MouseEvent mouseEvent) {
+        move(Farbe.WEISS, "A");
+    }
+
+    @FXML
+    public void whiteB(MouseEvent mouseEvent) {
+        move(Farbe.WEISS, "B");
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        figuren = new ImageView[]{blauA, blauB, gelbA, gelbB, gruenA, gruenB, rotA, rotB, schwarzA, schwarzB, weissA, weissB};
+        labels = new Label[]{blueALabel, blueBLabel, yellowALabel,
+                yellowBLabel, greenALabel, greenBLabel, redALabel, redBLabel, blackALabel,
+                blackBLabel, whiteALabel, whiteBLabel};
+        for (int i = 2; i < 7; i++) {
+            mbox.getItems().add(i);
+        }
+        mbox.getSelectionModel().selectFirst();
+        saveGame.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save");
+            fileChooser.setInitialFileName("save file");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("txt files (*.txt)", "*.txt"));
+            File selectedFile = fileChooser.showSaveDialog(Main.primaryStage);
+            try {
+                p.speichern(selectedFile.getAbsolutePath());
+            } catch (IOException exception) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid configuration:\n" + exception, ButtonType.OK);
+                alert.show();
+            }
+
+        });
+        configCBox.setOnAction(e -> {
+            in.setVisible(!configCBS);
+            configCBS = !configCBS;
+        });
+        lgCBox.setOnAction(e -> {
+            selectFile.setVisible(!LoadCBS);
+            LoadCBS = !LoadCBS;
+        });
+        startGame.setOnAction(e -> {
+            n = mbox.getSelectionModel().getSelectedIndex() + 2;
+            System.out.println(n);
+            int i = 0;
+            farben = new Farbe[n];
+            for (Farbe farbe : Farbe.values()) {
+                farben[i] = farbe;
+                i++;
+                if (i == n) {
+                    break;
+                }
+            }
+            if (configCBS) {
+                try {
+                    p = new Paradiesspiel(in.getText(), farben);
+                    warmUP();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid configuration:\n" + exception, ButtonType.OK);
+                    alert.show();
+                    p = null;
+                }
+            } else {
+                try {
+                    p = new Paradiesspiel(farben);
+                    warmUP();
+                } catch (Exception exception) {
+                    System.out.println(exception);
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Something went wrong:\n" + exception, ButtonType.OK);
+                    alert.show();
+                    p = null;
+                }
+
+            }
+            Parent root = null;
+        });
+        selectFile.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialFileName("config.txt");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+            File selectedFile = fileChooser.showOpenDialog(Main.primaryStage);
+            System.out.println(selectedFile.getAbsolutePath());
+            try {
+                p = (Paradiesspiel) Paradiesspiel.laden(selectedFile.getAbsolutePath());
+                n = p.getSpieler().length;
+                warmUP();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid configuration\n" + exception, ButtonType.OK);
+                alert.show();
+                p = null;
+            }
+        });
+    }
+
+    public void warmUP() {
+        nop.setVisible(false);
+        mbox.setVisible(false);
+        configCBox.setVisible(false);
+        lgCBox.setVisible(false);
+        in.setVisible(false);
+        selectFile.setVisible(false);
+        startGame.setVisible(false);
+        scoreboard.setVisible(true);
+        dice1.setVisible(true);
+        dice2.setVisible(true);
+        dice.setVisible(true);
+        action.setVisible(true);
+        dice2.setVisible(true);
+        active.setVisible(true);
+        rounde.setVisible(true);
+        saveGame.setVisible(true);
+
+        System.out.println(p);
+        int i = 1;
+        map[0][0] = (float) 59;
+        map[0][1] = (float) 59;
+        while (i <= 10) {
+            map[i][0] = map[i - 1][0] + 59;
+            map[i][1] = (float) 59;
+            i++;
+        }
+        while (i <= 19) {
+            map[i][0] = map[10][0];
+            map[i][1] = map[i - 1][1] + 59;
+            i++;
+        }
+        while (i <= 29) {
+            map[i][0] = map[i - 1][0] - 59;
+            map[i][1] = map[19][1];
+            i++;
+        }
+        while (i <= 36) {
+            map[i][0] = map[29][0];
+            map[i][1] = map[i - 1][1] - 59;
+            i++;
+        }
+        while (i <= 44) {
+            map[i][0] = map[i - 1][0] + 59;
+            map[i][1] = map[36][1];
+            i++;
+        }
+        while (i <= 49) {
+            map[i][0] = map[44][0];
+            map[i][1] = map[i - 1][1] + 59;
+            i++;
+        }
+        while (i <= 55) {
+            map[i][0] = map[i - 1][0] - 59;
+            map[i][1] = map[49][1];
+            i++;
+        }
+        while (i <= 58) {
+            map[i][0] = map[55][0];
+            map[i][1] = map[i - 1][1] - 59;
+            i++;
+        }
+        while (i <= 62) {
+            map[i][0] = map[i - 1][0] + 59;
+            map[i][1] = map[58][1];
+            i++;
+        }
+        map[63][0] = map[62][0];
+        map[63][1] = map[62][1] + 59;
+        Spieler[] spieler = p.getSpieler();
+        for (Spieler s : spieler) {
+            Farbe farbe = s.getFarbe();
+            figuren[farbe.ordinal() * 2].setVisible(true);
+            figuren[farbe.ordinal() * 2 + 1].setVisible(true);
+            labels[farbe.ordinal() * 2].setVisible(true);
+            labels[farbe.ordinal() * 2 + 1].setVisible(true);
+            figuren[farbe.ordinal() * 2].setLayoutX(map[p.getFigurposition(farbe.toString() + "-A")][0] + dx[farbe.ordinal()]);
+            figuren[farbe.ordinal() * 2].setLayoutY(map[p.getFigurposition(farbe.toString() + "-A")][1] + dy[farbe.ordinal()]);
+            figuren[farbe.ordinal() * 2 + 1].setLayoutX(map[p.getFigurposition(farbe.toString() + "-B")][0] + dx[farbe.ordinal()] + 15);
+            figuren[farbe.ordinal() * 2 + 1].setLayoutY(map[p.getFigurposition(farbe.toString() + "-B")][1] + dy[farbe.ordinal()]);
+        }
+    }
+
+    public void move(Farbe farbe, String aORb) {
+        if (p.getFarbeAmZug().equals(farbe)) {
+            Thread thread = new Thread() {
+                public void run() {
+                    String figureS = p.getFarbeAmZug().toString() + "-" + aORb;
+                    int farbeOrd = p.getFarbeAmZug().ordinal();
+                    int deltaAorB = 0;
+                    if (aORb.equals("B")) {
+                        deltaAorB = 1;
+                    }
+                    int position = p.getFigurposition(figureS);
+                    if (p.bewegeFigur(figureS, wurfel[0], wurfel[1])) {
+                        int delta = p.getFigurposition(figureS) - position;
+                        for (int i = 0; i <= Math.abs(delta); i++) {
+                            try {
+                                if (delta > 0) {
+                                    figuren[farbeOrd * 2 + deltaAorB].setLayoutX(map[position + i][0] + dx[farbeOrd] + 15 * deltaAorB);
+                                    figuren[farbeOrd * 2 + deltaAorB].setLayoutY(map[position + i][1] + dy[farbeOrd]);
+                                } else {
+                                    figuren[farbeOrd * 2 + deltaAorB].setLayoutX(map[position - i][0] + dx[farbeOrd] + 15 * deltaAorB);
+                                    figuren[farbeOrd * 2 + deltaAorB].setLayoutY(map[position - i][1] + dy[farbeOrd]);
+                                }
+                                Thread.sleep(350);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        action.setDisable(false);
+                        final int finalDeltaAorB = deltaAorB;
+                        Platform.runLater(() -> {
+                            labels[farbeOrd * 2 + finalDeltaAorB].setText((float) (p.getFigurposition(farbe.toString() + "-" + aORb) / 63.0) + "%");
+                            rounde.setText("Rounde: " + p.getRounde());
+                        });
+                    }
+                    action.setDisable(false);
+                }
+            };
+            thread.start();
+        }
+    }
+}

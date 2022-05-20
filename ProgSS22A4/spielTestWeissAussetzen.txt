@@ -1,0 +1,27 @@
+BLAU-A :0, BLAU-B :12, 
+1==0, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == not active
+===================================
+GELB-A :19, GELB-B :20, 
+1==2, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == active
+===================================
+GRUEN-A :0, GRUEN-B :0, 
+1==0, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == not active
+===================================
+ROT-A :19, ROT-B :0, 
+1==0, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == not active
+===================================
+SCHWARZ-A :0, SCHWARZ-B :0, 
+1==0, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == not active
+===================================
+WEISS-A :0, WEISS-B :19, 
+1==2, 2==0, 3==0, 4==0, 5==0, 6==0
+labyrinth status == active
+===================================
+rounde nummer 2
+Gewinner = null
+class de.ostfalia.prog.ss22.Paradiesspiel
