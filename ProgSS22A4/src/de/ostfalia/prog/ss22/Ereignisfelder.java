@@ -32,10 +32,7 @@ public class Ereignisfelder {
 		} else {
 			return aktuelleP;
 			System.out.println("test bestanden ");
-						System.out.println("test bestanden ");
-			System.out.println("test bestanden");
-						System.out.println("test bestanden");
-			System.out.println("test bestanden");
+			
 
 
 		}
