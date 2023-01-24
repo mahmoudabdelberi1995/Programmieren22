@@ -31,9 +31,9 @@ public class Ereignisfelder {
 			return felder.get(aktuelleP).last(aktuelleP, augenzahlen);
 		} else {
 			return aktuelleP;
-			System.out.println(" ");
-						System.out.println(" ");
-			System.out.println(" ");
+			System.out.println("test bestanden ");
+						System.out.println("test bestanden ");
+			System.out.println("test bestanden");
 
 		}
 	}
